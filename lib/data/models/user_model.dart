@@ -147,6 +147,7 @@ abstract class UserEntity extends Object
 
   static const OAUTH_PROVIDER_GOOGLE = 'google';
   static const OAUTH_PROVIDER_MICROSOFT = 'microsoft';
+  static const OAUTH_PROVIDER_APPLE = 'apple';
 
   @override
   @memoized
@@ -315,6 +316,9 @@ abstract class UserEntity extends Object
 
   bool get isConnectedToGoogle =>
       oauthProvider == UserEntity.OAUTH_PROVIDER_GOOGLE;
+
+  bool get isConnectedToApple =>
+      oauthProvider == UserEntity.OAUTH_PROVIDER_APPLE;
 
   bool get isConnectedToMicrosoft =>
       oauthProvider == UserEntity.OAUTH_PROVIDER_MICROSOFT;

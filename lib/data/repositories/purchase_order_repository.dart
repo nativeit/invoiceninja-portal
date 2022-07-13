@@ -30,15 +30,17 @@ class PurchaseOrderRepository {
     Credentials credentials,
     int page,
     int createdAt,
-    bool filterDeleted,
+    //bool filterDeleted,
     int recordsPerPage,
   ) async {
-    String url = credentials.url +
+    final url = credentials.url +
         '/purchase_orders?per_page=$recordsPerPage&page=$page&created_at=$createdAt';
 
+    /*
     if (filterDeleted) {
       url += '&filter_deleted_clients=true';
     }
+    */
 
     final dynamic response = await webClient.get(url, credentials.token);
 
@@ -57,6 +59,9 @@ class PurchaseOrderRepository {
     final url = credentials.url + '/purchase_orders/bulk';
     final dynamic response = await webClient.post(url, credentials.token,
         data: json.encode({'ids': ids, 'action': action.toApiParam()}));
+
+    print(
+        '## DATA: ${json.encode({'ids': ids, 'action': action.toApiParam()})}');
 
     final InvoiceListResponse purchaseOrderResponse =
         serializers.deserializeWith(InvoiceListResponse.serializer, response);

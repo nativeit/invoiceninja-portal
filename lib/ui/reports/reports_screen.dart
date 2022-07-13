@@ -112,6 +112,10 @@ class ReportsScreen extends StatelessWidget {
       kReportProduct,
       kReportProfitAndLoss,
       kReportTask,
+      if (state.company.isModuleEnabled(EntityType.vendor)) ...[
+        if (state.company.isModuleEnabled(EntityType.purchaseOrder))
+          kReportPurchaseOrder,
+      ],
     ]..sort((a, b) => a.compareTo(b));
 
     final reportChildren = [
@@ -408,10 +412,12 @@ class ReportsScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     HelpText(localization.upgradeToViewReports),
-                    AppButton(
-                      label: localization.upgrade.toUpperCase(),
-                      onPressed: () => launch(state.userCompany.ninjaPortalUrl),
-                    )
+                    if (!isApple())
+                      AppButton(
+                        label: localization.upgrade.toUpperCase(),
+                        onPressed: () =>
+                            launch(state.userCompany.ninjaPortalUrl),
+                      )
                   ],
                 ),
               )
@@ -1323,7 +1329,8 @@ class ReportResult {
           value = formatNumber(values[column], context,
               formatNumberType: column == 'quantity'
                   ? FormatNumberType.double
-                  : FormatNumberType.money);
+                  : FormatNumberType.money,
+              currencyId: values['${column}_currency_id'].round().toString());
         } else if (columnType == ReportColumnType.duration) {
           value = formatDuration(Duration(seconds: values[column].toInt()));
         }

@@ -1,17 +1,14 @@
 // Flutter imports:
 import 'package:flutter/material.dart';
 
-// Package imports:
-import 'package:flutter_redux/flutter_redux.dart';
-
 // Project imports:
 import 'package:invoiceninja_flutter/colors.dart';
 import 'package:invoiceninja_flutter/constants.dart';
 import 'package:invoiceninja_flutter/data/models/company_gateway_model.dart';
 import 'package:invoiceninja_flutter/data/models/models.dart';
+import 'package:invoiceninja_flutter/data/models/purchase_order_model.dart';
 import 'package:invoiceninja_flutter/data/models/quote_model.dart';
 import 'package:invoiceninja_flutter/data/models/recurring_invoice_model.dart';
-import 'package:invoiceninja_flutter/redux/app/app_state.dart';
 import 'package:invoiceninja_flutter/redux/invoice/invoice_selectors.dart';
 import 'package:invoiceninja_flutter/redux/payment/payment_selectors.dart';
 import 'package:invoiceninja_flutter/redux/recurring_invoice/recurring_invoice_selectors.dart';
@@ -40,11 +37,12 @@ class InvoiceOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localization = AppLocalization.of(context);
+    final state = viewModel.state;
     final invoice = viewModel.invoice;
     final client = viewModel.client;
+    final vendor = state.vendorState.get(invoice.vendorId);
     final company = viewModel.company;
 
-    final state = StoreProvider.of<AppState>(context).state;
     final creditMap = <PaymentableEntity, PaymentEntity>{};
     final paymentMap = <PaymentableEntity, PaymentEntity>{};
     final payments = invoice.isInvoice
@@ -80,6 +78,10 @@ class InvoiceOverview extends StatelessWidget {
       statuses = kRecurringInvoiceStatuses;
       colors =
           RecurringInvoiceStatusColors(state.prefState.colorThemeModel).colors;
+    } else if (invoice.entityType == EntityType.purchaseOrder) {
+      statuses = kPurchaseOrderStatuses;
+      colors =
+          PurchaseOrderStatusColors(state.prefState.colorThemeModel).colors;
     } else {
       statuses = kInvoiceStatuses;
       colors = InvoiceStatusColors(state.prefState.colorThemeModel).colors;
@@ -93,11 +95,13 @@ class InvoiceOverview extends StatelessWidget {
         entity: invoice,
         statusColor: color,
         statusLabel: localization.lookup(statuses[invoice.calculatedStatusId]),
-        label: invoice.isCredit
-            ? localization.creditAmount
-            : invoice.isQuote
-                ? localization.quoteAmount
-                : localization.invoiceAmount,
+        label: invoice.isPurchaseOrder
+            ? localization.amount
+            : invoice.isCredit
+                ? localization.creditAmount
+                : invoice.isQuote
+                    ? localization.quoteAmount
+                    : localization.invoiceAmount,
         value:
             formatNumber(invoice.amount, context, clientId: invoice.clientId),
         secondLabel: invoice.isCredit
@@ -137,7 +141,7 @@ class InvoiceOverview extends StatelessWidget {
     }
 
     String dueDateField = InvoiceFields.dueDate;
-    if (invoice.isQuote) {
+    if (invoice.isQuote || invoice.isCredit) {
       dueDateField = QuoteFields.validUntil;
     }
 
@@ -146,6 +150,8 @@ class InvoiceOverview extends StatelessWidget {
         QuoteFields.date: formatDate(invoice.date, context)
       else if (invoice.isCredit)
         CreditFields.date: formatDate(invoice.date, context)
+      else if (invoice.isPurchaseOrder)
+        PurchaseOrderFields.date: formatDate(invoice.date, context)
       else if (invoice.isInvoice)
         InvoiceFields.date: formatDate(invoice.date, context),
       dueDateField: formatDate(invoice.dueDate, context),
@@ -221,17 +227,32 @@ class InvoiceOverview extends StatelessWidget {
           value: invoice.customValue4);
     }
 
-    widgets.add(
-      EntityListTile(
-        isFilter: isFilter,
-        entity: client,
-        subtitle: client.primaryContact.email,
-      ),
-    );
+    if (invoice.isPurchaseOrder) {
+      widgets.add(
+        EntityListTile(
+          isFilter: isFilter,
+          entity: vendor,
+          subtitle: vendor.primaryContact.email,
+        ),
+      );
+    } else {
+      widgets.add(
+        EntityListTile(
+          isFilter: isFilter,
+          entity: client,
+          subtitle: client.primaryContact.email,
+        ),
+      );
+    }
 
     if ((invoice.projectId ?? '').isNotEmpty) {
       final project = state.projectState.get(invoice.projectId);
       widgets.add(EntityListTile(entity: project, isFilter: isFilter));
+    }
+
+    if ((invoice.expenseId ?? '').isNotEmpty) {
+      final expense = state.vendorState.get(invoice.expenseId);
+      widgets.add(EntityListTile(entity: expense, isFilter: isFilter));
     }
 
     if ((invoice.assignedUserId ?? '').isNotEmpty) {

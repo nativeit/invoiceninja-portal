@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
+import 'package:invoiceninja_flutter/ui/reports/purchase_order_report.dart';
 import 'package:invoiceninja_flutter/ui/reports/recurring_expense_report.dart';
 import 'package:invoiceninja_flutter/ui/reports/recurring_invoice_report.dart';
 import 'package:invoiceninja_flutter/utils/platforms.dart';
@@ -160,6 +161,7 @@ class ReportsScreenVM {
           state.invoiceState.map,
           state.clientState.map,
           state.vendorState.map,
+          state.projectState.map,
           state.userState.map,
           state.staticState,
         );
@@ -302,7 +304,18 @@ class ReportsScreenVM {
           state.staticState,
         );
         break;
-      default:
+      case kReportPurchaseOrder:
+        reportResult = memoizedPurchaseOrderReport(
+          state.userCompany,
+          state.uiState.reportsUIState,
+          state.purchaseOrderState.map,
+          state.clientState.map,
+          state.vendorState.map,
+          state.userState.map,
+          state.staticState,
+        );
+        break;
+      case kReportClient:
         reportResult = memoizedClientReport(
           state.userCompany,
           state.uiState.reportsUIState,
@@ -509,6 +522,41 @@ GroupTotals calculateReportTotals({
     return GroupTotals();
   }
 
+  bool shouldConverCurrencies = false;
+  final Map<String, Map<String, String>> groupCurrencies = {};
+  for (var i = 0; i < data.length; i++) {
+    final row = data[i];
+    final columnIndex = columns.indexOf(reportState.group);
+
+    if (columnIndex == -1) {
+      print('## ERROR: colum not found - ${reportState.group}');
+      continue;
+    }
+
+    final groupCell = row[columnIndex];
+    final group = groupCell.stringValue;
+
+    if (!groupCurrencies.containsKey(group)) {
+      groupCurrencies[group] = {};
+    }
+
+    for (var j = 0; j < row.length; j++) {
+      final cell = row[j];
+      final column = columns[j];
+
+      if (cell is ReportNumberValue) {
+        final currencyId = groupCurrencies[group][column] ?? '';
+
+        if (currencyId.isNotEmpty && currencyId != cell.currencyId) {
+          shouldConverCurrencies = true;
+          break;
+        }
+
+        groupCurrencies[group][column] = cell.currencyId;
+      }
+    }
+  }
+
   for (var i = 0; i < data.length; i++) {
     final row = data[i];
     final columnIndex = columns.indexOf(reportState.group);
@@ -569,9 +617,14 @@ GroupTotals calculateReportTotals({
           totals[group][column] = 0;
         }
 
+        if (cell is ReportNumberValue) {
+          totals[group]['${column}_currency_id'] = parseDouble(cell.currencyId);
+        }
+
         if (cell is ReportNumberValue &&
             cell.currencyId != null &&
-            cell.currencyId != company.currencyId) {
+            cell.currencyId != company.currencyId &&
+            shouldConverCurrencies) {
           double cellValue = cell.value;
           var rate = cell.exchangeRate;
           if (rate == null || rate == 0 || rate == 1) {

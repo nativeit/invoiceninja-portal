@@ -69,6 +69,7 @@ class EntityAction extends EnumClass {
   static const EntityAction documents = _$documents;
   static const EntityAction bulkDownload = _$bulkDownload;
   static const EntityAction sendEmail = _$sendEmail;
+  static const EntityAction sendNow = _$sendNow;
   static const EntityAction bulkSendEmail = _$bulkSendEmail;
   static const EntityAction markSent = _$markSent;
   static const EntityAction markPaid = _$markPaid;
@@ -105,18 +106,19 @@ class EntityAction extends EnumClass {
   static const EntityAction resendInvite = _$resendInvite;
   static const EntityAction disconnect = _$disconnect;
   static const EntityAction viewInvoice = _$viewInvoice;
+  static const EntityAction viewExpense = _$viewExpense;
   static const EntityAction changeStatus = _$changeStatus;
   static const EntityAction addToInvoice = _$addToInvoice;
   static const EntityAction cancel = _$cancel;
   static const EntityAction save = _$save;
   static const EntityAction accept = _$accept;
+  static const EntityAction addToInventory = _$addToInventory;
+  static const EntityAction convertToExpense = _$convertToExpense;
 
   @override
   String toString() {
     return toSnakeCase(super.toString());
   }
-
-  bool get isEmail => toString().startsWith('email');
 
   bool get isServerSide => [
         EntityAction.start,
@@ -131,6 +133,7 @@ class EntityAction extends EnumClass {
         EntityAction.delete,
         EntityAction.restore,
         EntityAction.purge,
+        EntityAction.sendNow,
       ].contains(this);
 
   bool get requiresSecondRequest => [
@@ -144,12 +147,12 @@ class EntityAction extends EnumClass {
   String toApiParam() {
     final value = toString();
 
-    if (value.startsWith('email')) {
+    if (this == EntityAction.sendEmail || this == EntityAction.bulkSendEmail) {
       return 'email';
-    }
-
-    if (this == EntityAction.cancelInvoice) {
+    } else if (this == EntityAction.cancelInvoice) {
       return 'cancel';
+    } else if (this == EntityAction.convertToExpense) {
+      return 'expense';
     }
 
     // else if (value == 'approve') {
@@ -183,9 +186,11 @@ class EntityAction extends EnumClass {
         return EntityAction.newTask;
       case EntityType.vendor:
         return EntityAction.newVendor;
+      case EntityType.purchaseOrder:
+        return EntityAction.newPurchaseOrder;
       default:
         print(
-            'ERROR: entityType $entityType not defined in EntityAction.newEntityType');
+            '## ERROR: entityType $entityType not defined in EntityAction.newEntityType');
         return null;
     }
   }

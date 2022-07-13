@@ -273,18 +273,21 @@ class InvoiceEditDetailsState extends State<InvoiceEditDetails> {
                 validator: (String val) => val.trim().isEmpty
                     ? AppLocalization.of(context).pleaseSelectADate
                     : null,
-                labelText: widget.entityType == EntityType.credit
-                    ? localization.creditDate
-                    : widget.entityType == EntityType.quote
-                        ? localization.quoteDate
-                        : localization.invoiceDate,
+                labelText: widget.entityType == EntityType.purchaseOrder
+                    ? localization.purchaseOrderDate
+                    : widget.entityType == EntityType.credit
+                        ? localization.creditDate
+                        : widget.entityType == EntityType.quote
+                            ? localization.quoteDate
+                            : localization.invoiceDate,
                 selectedDate: invoice.date,
                 onSelected: (date, _) {
                   viewModel.onChanged(invoice.rebuild((b) => b..date = date));
                 },
               ),
               DatePicker(
-                labelText: widget.entityType == EntityType.invoice
+                labelText: widget.entityType == EntityType.invoice ||
+                        widget.entityType == EntityType.purchaseOrder
                     ? localization.dueDate
                     : localization.validUntil,
                 selectedDate: invoice.dueDate,

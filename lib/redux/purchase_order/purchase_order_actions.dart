@@ -274,6 +274,44 @@ class DownloadPurchaseOrdersFailure implements StopSaving {
   final Object error;
 }
 
+class AcceptPurchaseOrdersRequest implements StartSaving {
+  AcceptPurchaseOrdersRequest(this.completer, this.purchaseOrderIds);
+
+  final List<String> purchaseOrderIds;
+  final Completer completer;
+}
+
+class AcceptPurchaseOrderSuccess implements StopSaving {
+  AcceptPurchaseOrderSuccess(this.purchaseOrders);
+
+  final List<InvoiceEntity> purchaseOrders;
+}
+
+class AcceptPurchaseOrderFailure implements StopSaving {
+  AcceptPurchaseOrderFailure(this.error);
+
+  final dynamic error;
+}
+
+class CancelPurchaseOrdersRequest implements StartSaving {
+  CancelPurchaseOrdersRequest(this.completer, this.purchaseOrderIds);
+
+  final List<String> purchaseOrderIds;
+  final Completer completer;
+}
+
+class CancelPurchaseOrderSuccess implements StopSaving {
+  CancelPurchaseOrderSuccess(this.purchaseOrders);
+
+  final List<InvoiceEntity> purchaseOrders;
+}
+
+class CancelPurchaseOrderFailure implements StopSaving {
+  CancelPurchaseOrderFailure(this.error);
+
+  final dynamic error;
+}
+
 class RestorePurchaseOrdersRequest implements StartSaving {
   RestorePurchaseOrdersRequest(this.completer, this.purchaseOrderIds);
 
@@ -335,6 +373,45 @@ class MarkPurchaseOrderSentSuccess implements StopSaving, PersistData {
 
 class MarkPurchaseOrderSentFailure implements StopSaving {
   MarkPurchaseOrderSentFailure(this.error);
+
+  final Object error;
+}
+
+class ConvertPurchaseOrdersToExpensesRequest implements StartSaving {
+  ConvertPurchaseOrdersToExpensesRequest(this.completer, this.purchaseOrderIds);
+
+  final Completer completer;
+  final List<String> purchaseOrderIds;
+}
+
+class ConvertPurchaseOrdersToExpensesSuccess
+    implements StopSaving, PersistData {
+  ConvertPurchaseOrdersToExpensesSuccess(this.purchaseOrders);
+
+  final List<InvoiceEntity> purchaseOrders;
+}
+
+class ConvertPurchaseOrdersToExpensesFailure implements StopSaving {
+  ConvertPurchaseOrdersToExpensesFailure(this.error);
+
+  final Object error;
+}
+
+class AddPurchaseOrdersToInventoryRequest implements StartSaving {
+  AddPurchaseOrdersToInventoryRequest(this.completer, this.purchaseOrderIds);
+
+  final Completer completer;
+  final List<String> purchaseOrderIds;
+}
+
+class AddPurchaseOrdersToInventorySuccess implements StopSaving, PersistData {
+  AddPurchaseOrdersToInventorySuccess(this.purchaseOrders);
+
+  final List<InvoiceEntity> purchaseOrders;
+}
+
+class AddPurchaseOrdersToInventoryFailure implements StopSaving {
+  AddPurchaseOrdersToInventoryFailure(this.error);
 
   final Object error;
 }
@@ -503,6 +580,10 @@ void handlePurchaseOrderAction(BuildContext context,
     case EntityAction.edit:
       editEntity(entity: purchaseOrder);
       break;
+    case EntityAction.viewPdf:
+      store.dispatch(
+          ShowPdfPurchaseOrder(purchaseOrder: purchaseOrder, context: context));
+      break;
     case EntityAction.restore:
       store.dispatch(RestorePurchaseOrdersRequest(
           snackBarCompleter<Null>(context, localization.restoredPurchaseOrder),
@@ -518,6 +599,28 @@ void handlePurchaseOrderAction(BuildContext context,
           snackBarCompleter<Null>(context, localization.deletedPurchaseOrder),
           purchaseOrderIds));
       break;
+    case EntityAction.addToInventory:
+      store.dispatch(AddPurchaseOrdersToInventoryRequest(
+          snackBarCompleter<Null>(
+              context,
+              purchaseOrders.length == 1
+                  ? localization.addedPurchaseOrderToInventory
+                  : localization.addedPurchaseOrdersToInventory),
+          purchaseOrderIds));
+      break;
+    case EntityAction.convertToExpense:
+      store.dispatch(ConvertPurchaseOrdersToExpensesRequest(
+          snackBarCompleter<Null>(
+              context,
+              purchaseOrders.length == 1
+                  ? localization.convertedToExpense
+                  : localization.convertedToExpenses),
+          purchaseOrderIds));
+      break;
+    case EntityAction.viewExpense:
+      viewEntityById(
+          entityId: purchaseOrder.expenseId, entityType: EntityType.expense);
+      break;
     case EntityAction.markSent:
       store.dispatch(MarkPurchaseOrdersSentRequest(
           snackBarCompleter<Null>(
@@ -525,6 +628,24 @@ void handlePurchaseOrderAction(BuildContext context,
               purchaseOrders.length == 1
                   ? localization.markedPurchaseOrderAsSent
                   : localization.markedPurchaseOrdersAsSent),
+          purchaseOrderIds));
+      break;
+    case EntityAction.cancelInvoice:
+      store.dispatch(CancelPurchaseOrdersRequest(
+          snackBarCompleter<Null>(
+              context,
+              purchaseOrders.length == 1
+                  ? localization.cancelledPurchaseOrder
+                  : localization.cancelledPurchaseOrders),
+          purchaseOrderIds));
+      break;
+    case EntityAction.accept:
+      store.dispatch(AcceptPurchaseOrdersRequest(
+          snackBarCompleter<Null>(
+              context,
+              purchaseOrders.length == 1
+                  ? localization.acceptedPurchaseOrder
+                  : localization.acceptedPurchaseOrders),
           purchaseOrderIds));
       break;
     case EntityAction.toggleMultiselect:
@@ -544,6 +665,9 @@ void handlePurchaseOrderAction(BuildContext context,
               RemoveFromPurchaseOrderMultiselect(entity: purchaseOrder));
         }
       }
+      break;
+    case EntityAction.clientPortal:
+      launch(purchaseOrder.invitationSilentLink);
       break;
     case EntityAction.sendEmail:
     case EntityAction.bulkSendEmail:
@@ -565,9 +689,9 @@ void handlePurchaseOrderAction(BuildContext context,
                   onPressed: () {
                     Navigator.of(context).pop();
                     editEntity(
-                        entity: state.clientState.get(purchaseOrder.clientId));
+                        entity: state.vendorState.get(purchaseOrder.vendorId));
                   },
-                  child: Text(localization.editClient.toUpperCase()))
+                  child: Text(localization.editVendor.toUpperCase()))
             ]);
         return;
       }

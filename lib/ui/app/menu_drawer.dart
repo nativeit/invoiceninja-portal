@@ -11,6 +11,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:invoiceninja_flutter/redux/auth/auth_actions.dart';
 import 'package:invoiceninja_flutter/redux/settings/settings_actions.dart';
+import 'package:invoiceninja_flutter/utils/app_review.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:redux/redux.dart';
@@ -41,7 +42,6 @@ import 'package:invoiceninja_flutter/ui/app/scrollable_listview.dart';
 import 'package:invoiceninja_flutter/ui/system/update_dialog.dart';
 import 'package:invoiceninja_flutter/utils/colors.dart';
 import 'package:invoiceninja_flutter/utils/dialogs.dart';
-import 'package:invoiceninja_flutter/utils/formatting.dart';
 import 'package:invoiceninja_flutter/utils/icons.dart';
 import 'package:invoiceninja_flutter/utils/localization.dart';
 import 'package:invoiceninja_flutter/utils/platforms.dart';
@@ -527,13 +527,14 @@ class MenuDrawer extends StatelessWidget {
                               icon: getEntityIcon(EntityType.recurringExpense),
                               title: localization.recurringExpenses,
                             ),
-                            DrawerTile(
-                              company: company,
-                              icon: getEntityIcon(EntityType.reports),
-                              title: localization.reports,
-                              onTap: () => viewEntitiesByType(
-                                  entityType: EntityType.reports),
-                            ),
+                            if (!isApple() || state.isProPlan)
+                              DrawerTile(
+                                company: company,
+                                icon: getEntityIcon(EntityType.reports),
+                                title: localization.reports,
+                                onTap: () => viewEntitiesByType(
+                                    entityType: EntityType.reports),
+                              ),
                             DrawerTile(
                               company: company,
                               icon: getEntityIcon(EntityType.settings),
@@ -625,8 +626,11 @@ class _DrawerTileState extends State<DrawerTile> {
       route = widget.entityType.name;
     }
 
+    // Workaround to show clients/vendors as selected when
+    // viewing their sub-entities
     final isSelected = uiState.filterEntityType != null &&
             prefState.isViewerFullScreen(uiState.filterEntityType) &&
+            !uiState.isEditing &&
             (prefState.isPreviewVisible || uiState.isList)
         ? widget.entityType == uiState.filterEntityType
         : uiState.currentRoute.startsWith('/${toSnakeCase(route)}');
@@ -877,7 +881,10 @@ class SidebarFooter extends StatelessWidget {
                     clearErrorOnDismiss: true,
                   ),
                 )
-              else if (state.isSelfHosted && state.isUpdateAvailable)
+              else if (state.isSelfHosted &&
+                  !state.account.disableAutoUpdate &&
+                  !state.account.isDocker &&
+                  state.isUpdateAvailable)
                 IconButton(
                   tooltip: prefState.enableTooltips
                       ? localization.updateAvailable
@@ -1164,10 +1171,6 @@ void _showAbout(BuildContext context) async {
     height: 40.0,
   );
 
-  final daysActive = DateTime.now()
-      .difference(convertTimestampToDate(state.company.createdAt))
-      .inDays;
-
   showDialog<Null>(
       context: context,
       builder: (BuildContext context) {
@@ -1348,6 +1351,12 @@ void _showAbout(BuildContext context) async {
                       },
                     ),
                   ),
+                  AppButton(
+                    label: (localization.releaseNotes).toUpperCase(),
+                    iconData: MdiIcons.note,
+                    color: Colors.cyan,
+                    onPressed: () => launch(kReleaseNotesUrl),
+                  ),
                   if (state.isSelfHosted || !kReleaseMode) ...[
                     AppButton(
                       label: localization.healthCheck.toUpperCase(),
@@ -1361,7 +1370,8 @@ void _showAbout(BuildContext context) async {
                             });
                       },
                     ),
-                    if (!state.account.disableAutoUpdate)
+                    if (!state.account.disableAutoUpdate &&
+                        !state.account.isDocker)
                       AppButton(
                         label: (state.isUpdateAvailable
                                 ? localization.updateApp
@@ -1372,12 +1382,18 @@ void _showAbout(BuildContext context) async {
                         onPressed: () => _showUpdate(context),
                       ),
                   ],
-                  if (daysActive > 30)
+                  if (state.company.daysActive > 30)
                     AppButton(
                       label: localization.reviewApp.toUpperCase(),
                       iconData: Icons.star,
                       color: Colors.purple,
-                      onPressed: () => launch(getRateAppURL(context)),
+                      onPressed: () {
+                        if (kIsWeb || isLinux()) {
+                          launch(getRateAppURL(context));
+                        } else {
+                          AppReview.openStoreListing();
+                        }
+                      },
                     ),
                   SizedBox(height: 22),
                   Wrap(

@@ -31,6 +31,7 @@ IconData getEntityActionIcon(EntityAction entityAction) {
     case EntityAction.cloneToQuote:
     case EntityAction.cloneToCredit:
     case EntityAction.cloneToRecurring:
+    case EntityAction.cloneToPurchaseOrder:
       return Icons.control_point_duplicate;
     case EntityAction.markSent:
       return Icons.public;
@@ -39,6 +40,7 @@ IconData getEntityActionIcon(EntityAction entityAction) {
     case EntityAction.sendEmail:
     case EntityAction.bulkSendEmail:
     case EntityAction.resendInvite:
+    case EntityAction.sendNow:
       return Icons.send;
     case EntityAction.archive:
       return Icons.archive;
@@ -49,8 +51,10 @@ IconData getEntityActionIcon(EntityAction entityAction) {
     case EntityAction.restore:
       return Icons.restore;
     case EntityAction.convertToInvoice:
+    case EntityAction.convertToExpense:
       return Icons.content_copy;
     case EntityAction.approve:
+    case EntityAction.accept:
       return Icons.check_circle_outline;
     case EntityAction.newInvoice:
     case EntityAction.newExpense:
@@ -97,6 +101,8 @@ IconData getEntityActionIcon(EntityAction entityAction) {
       return Icons.cancel_outlined;
     case EntityAction.save:
       return Icons.cloud_upload;
+    case EntityAction.addToInventory:
+      return Icons.inventory;
     default:
       return null;
   }

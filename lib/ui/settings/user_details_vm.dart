@@ -57,6 +57,7 @@ class UserDetailsVM {
     @required this.onConnectMicrosoftPressed,
     @required this.onDisconnectMicrosoftPressed,
     @required this.onDisconnectMicrosoftEmailPressed,
+    @required this.onDisconnectApplePressed,
   });
 
   static UserDetailsVM fromStore(Store<AppState> store) {
@@ -172,6 +173,7 @@ class UserDetailsVM {
             callback: (_) {
               passwordCallback(
                   context: context,
+                  skipOAuth: true,
                   callback: (password, idToken) {
                     final completer = snackBarCompleter<Null>(context,
                         AppLocalization.of(context).disconnectedGoogle);
@@ -238,9 +240,41 @@ class UserDetailsVM {
 
         confirmCallback(
             context: context,
+            skip: true,
             callback: (_) {
               passwordCallback(
                   context: context,
+                  callback: (password, idToken) {
+                    final completer = snackBarCompleter<Null>(context,
+                        AppLocalization.of(context).disconnectedMicrosoft);
+                    completer.future.then((value) {
+                      WebUtils.microsoftLogout();
+                    });
+                    store.dispatch(
+                      SaveAuthUserRequest(
+                        user: state.user.rebuild((b) => b..oauthProvider = ''),
+                        password: password,
+                        idToken: idToken,
+                        completer: completer,
+                      ),
+                    );
+                  });
+            });
+      },
+      onDisconnectApplePressed: (context) {
+        if (!state.user.hasPassword) {
+          showErrorDialog(
+              context: context,
+              message: AppLocalization.of(context).pleaseFirstSetAPassword);
+          return;
+        }
+
+        confirmCallback(
+            context: context,
+            callback: (_) {
+              passwordCallback(
+                  context: context,
+                  skipOAuth: true,
                   callback: (password, idToken) {
                     final completer = snackBarCompleter<Null>(context,
                         AppLocalization.of(context).disconnectedMicrosoft);
@@ -354,4 +388,5 @@ class UserDetailsVM {
   final Function(BuildContext, Completer, String) onConnectGmailPressed;
   final Function(BuildContext) onDisconnectGmailPressed;
   final Function(BuildContext) onDisableTwoFactorPressed;
+  final Function(BuildContext) onDisconnectApplePressed;
 }

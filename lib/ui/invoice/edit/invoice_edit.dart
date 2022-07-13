@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 // Project imports:
 import 'package:invoiceninja_flutter/data/models/models.dart';
-import 'package:invoiceninja_flutter/redux/app/app_actions.dart';
 import 'package:invoiceninja_flutter/ui/app/edit_scaffold.dart';
 import 'package:invoiceninja_flutter/ui/invoice/edit/invoice_edit_contacts_vm.dart';
 import 'package:invoiceninja_flutter/ui/invoice/edit/invoice_edit_details_vm.dart';
@@ -81,27 +80,16 @@ class _InvoiceEditState extends State<InvoiceEdit>
       return;
     }
 
-    final viewModel = widget.viewModel;
-    final invoice = viewModel.invoice;
-    final client = viewModel.state.clientState.get(invoice.clientId);
-    final localization = AppLocalization.of(context);
-
-    if (action != null && action.isEmail && !client.hasEmailAddress) {
-      showMessageDialog(
+    if (action == EntityAction.cancelInvoice) {
+      confirmCallback(
           context: context,
-          message: localization.clientEmailNotSet,
-          secondaryActions: [
-            TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  editEntity(entity: client);
-                },
-                child: Text(localization.editClient.toUpperCase()))
-          ]);
-      return;
+          message: AppLocalization.of(context).cancelInvoice,
+          callback: (_) {
+            widget.viewModel.onSavePressed(context, action);
+          });
+    } else {
+      widget.viewModel.onSavePressed(context, action);
     }
-
-    widget.viewModel.onSavePressed(context, action);
   }
 
   @override

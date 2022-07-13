@@ -31,6 +31,7 @@ const EntityAction _$download = const EntityAction._('download');
 const EntityAction _$documents = const EntityAction._('documents');
 const EntityAction _$bulkDownload = const EntityAction._('bulkDownload');
 const EntityAction _$sendEmail = const EntityAction._('sendEmail');
+const EntityAction _$sendNow = const EntityAction._('sendNow');
 const EntityAction _$bulkSendEmail = const EntityAction._('bulkSendEmail');
 const EntityAction _$markSent = const EntityAction._('markSent');
 const EntityAction _$markPaid = const EntityAction._('markPaid');
@@ -72,11 +73,15 @@ const EntityAction _$invoiceProject = const EntityAction._('invoiceProject');
 const EntityAction _$resendInvite = const EntityAction._('resendInvite');
 const EntityAction _$disconnect = const EntityAction._('disconnect');
 const EntityAction _$viewInvoice = const EntityAction._('viewInvoice');
+const EntityAction _$viewExpense = const EntityAction._('viewExpense');
 const EntityAction _$changeStatus = const EntityAction._('changeStatus');
 const EntityAction _$addToInvoice = const EntityAction._('addToInvoice');
 const EntityAction _$cancel = const EntityAction._('cancel');
 const EntityAction _$save = const EntityAction._('save');
 const EntityAction _$accept = const EntityAction._('accept');
+const EntityAction _$addToInventory = const EntityAction._('addToInventory');
+const EntityAction _$convertToExpense =
+    const EntityAction._('convertToExpense');
 
 EntityAction _$valueOf(String name) {
   switch (name) {
@@ -124,6 +129,8 @@ EntityAction _$valueOf(String name) {
       return _$bulkDownload;
     case 'sendEmail':
       return _$sendEmail;
+    case 'sendNow':
+      return _$sendNow;
     case 'bulkSendEmail':
       return _$bulkSendEmail;
     case 'markSent':
@@ -196,6 +203,8 @@ EntityAction _$valueOf(String name) {
       return _$disconnect;
     case 'viewInvoice':
       return _$viewInvoice;
+    case 'viewExpense':
+      return _$viewExpense;
     case 'changeStatus':
       return _$changeStatus;
     case 'addToInvoice':
@@ -206,6 +215,10 @@ EntityAction _$valueOf(String name) {
       return _$save;
     case 'accept':
       return _$accept;
+    case 'addToInventory':
+      return _$addToInventory;
+    case 'convertToExpense':
+      return _$convertToExpense;
     default:
       throw new ArgumentError(name);
   }
@@ -235,6 +248,7 @@ final BuiltSet<EntityAction> _$values =
   _$documents,
   _$bulkDownload,
   _$sendEmail,
+  _$sendNow,
   _$bulkSendEmail,
   _$markSent,
   _$markPaid,
@@ -271,11 +285,14 @@ final BuiltSet<EntityAction> _$values =
   _$resendInvite,
   _$disconnect,
   _$viewInvoice,
+  _$viewExpense,
   _$changeStatus,
   _$addToInvoice,
   _$cancel,
   _$save,
   _$accept,
+  _$addToInventory,
+  _$convertToExpense,
 ]);
 
 Serializer<EntityAction> _$entityActionSerializer =

@@ -14,15 +14,14 @@ import 'package:invoiceninja_flutter/redux/ui/list_ui_state.dart';
 EntityUIState purchaseOrderUIReducer(
     PurchaseOrderUIState state, dynamic action) {
   return state.rebuild((b) => b
-        ..listUIState
-            .replace(purchaseOrderListReducer(state.listUIState, action))
-        ..editing.replace(editingReducer(state.editing, action))
-        ..editingItemIndex = editingItemReducer(state.editingItemIndex, action)
-        ..selectedId = selectedIdReducer(state.selectedId, action)
-        ..forceSelected = forceSelectedReducer(state.forceSelected, action)
-        ..tabIndex = tabIndexReducer(state.tabIndex, action)
-      //..historyActivityId = historyActivityIdReducer(state.historyActivityId, action)
-      );
+    ..listUIState.replace(purchaseOrderListReducer(state.listUIState, action))
+    ..editing.replace(editingReducer(state.editing, action))
+    ..editingItemIndex = editingItemReducer(state.editingItemIndex, action)
+    ..selectedId = selectedIdReducer(state.selectedId, action)
+    ..forceSelected = forceSelectedReducer(state.forceSelected, action)
+    ..tabIndex = tabIndexReducer(state.tabIndex, action)
+    ..historyActivityId =
+        historyActivityIdReducer(state.historyActivityId, action));
 }
 
 final forceSelectedReducer = combineReducers<bool>([
@@ -354,6 +353,14 @@ final purchaseOrdersReducer = combineReducers<PurchaseOrderState>([
   TypedReducer<PurchaseOrderState, LoadCompanySuccess>(_setLoadedCompany),
   TypedReducer<PurchaseOrderState, MarkPurchaseOrderSentSuccess>(
       _markSentPurchaseOrderSuccess),
+  TypedReducer<PurchaseOrderState, ConvertPurchaseOrdersToExpensesSuccess>(
+      _convertPurchaseOrdersToExpenses),
+  TypedReducer<PurchaseOrderState, AddPurchaseOrdersToInventorySuccess>(
+      _addPurchaseOrdersToInventorySuccess),
+  TypedReducer<PurchaseOrderState, AcceptPurchaseOrderSuccess>(
+      _acceptPurchaseOrderSuccess),
+  TypedReducer<PurchaseOrderState, CancelPurchaseOrderSuccess>(
+      _cancelPurchaseOrderSuccess),
   TypedReducer<PurchaseOrderState, EmailPurchaseOrderSuccess>(
       _emailPurchaseOrderSuccess),
   TypedReducer<PurchaseOrderState, ArchivePurchaseOrdersSuccess>(
@@ -369,6 +376,48 @@ final purchaseOrdersReducer = combineReducers<PurchaseOrderState>([
 PurchaseOrderState _markSentPurchaseOrderSuccess(
     PurchaseOrderState purchaseOrderState,
     MarkPurchaseOrderSentSuccess action) {
+  final purchaseOrderMap = Map<String, InvoiceEntity>.fromIterable(
+    action.purchaseOrders,
+    key: (dynamic item) => item.id,
+    value: (dynamic item) => item,
+  );
+  return purchaseOrderState.rebuild((b) => b..map.addAll(purchaseOrderMap));
+}
+
+PurchaseOrderState _convertPurchaseOrdersToExpenses(
+    PurchaseOrderState purchaseOrderState,
+    ConvertPurchaseOrdersToExpensesSuccess action) {
+  final purchaseOrderMap = Map<String, InvoiceEntity>.fromIterable(
+    action.purchaseOrders,
+    key: (dynamic item) => item.id,
+    value: (dynamic item) => item,
+  );
+  return purchaseOrderState.rebuild((b) => b..map.addAll(purchaseOrderMap));
+}
+
+PurchaseOrderState _addPurchaseOrdersToInventorySuccess(
+    PurchaseOrderState purchaseOrderState,
+    AddPurchaseOrdersToInventorySuccess action) {
+  final purchaseOrderMap = Map<String, InvoiceEntity>.fromIterable(
+    action.purchaseOrders,
+    key: (dynamic item) => item.id,
+    value: (dynamic item) => item,
+  );
+  return purchaseOrderState.rebuild((b) => b..map.addAll(purchaseOrderMap));
+}
+
+PurchaseOrderState _acceptPurchaseOrderSuccess(
+    PurchaseOrderState purchaseOrderState, AcceptPurchaseOrderSuccess action) {
+  final purchaseOrderMap = Map<String, InvoiceEntity>.fromIterable(
+    action.purchaseOrders,
+    key: (dynamic item) => item.id,
+    value: (dynamic item) => item,
+  );
+  return purchaseOrderState.rebuild((b) => b..map.addAll(purchaseOrderMap));
+}
+
+PurchaseOrderState _cancelPurchaseOrderSuccess(
+    PurchaseOrderState purchaseOrderState, CancelPurchaseOrderSuccess action) {
   final purchaseOrderMap = Map<String, InvoiceEntity>.fromIterable(
     action.purchaseOrders,
     key: (dynamic item) => item.id,

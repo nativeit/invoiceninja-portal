@@ -92,6 +92,8 @@ class DismissNativeWarningPermanently implements PersistUI, PersistPrefs {}
 
 class DismissGatewayWarningPermanently implements PersistUI, PersistPrefs {}
 
+class DismissReviewAppPermanently implements PersistUI, PersistPrefs {}
+
 class ViewMainScreen {
   ViewMainScreen({this.addDelay = false});
 
@@ -160,6 +162,7 @@ class UpdateUserPreferences implements PersistPrefs {
     this.editAfterSaving,
     this.enableTouchEvents,
     this.enableTooltips,
+    this.flexibleSearch,
   });
 
   final AppLayout appLayout;
@@ -186,6 +189,7 @@ class UpdateUserPreferences implements PersistPrefs {
   final bool editAfterSaving;
   final bool enableTouchEvents;
   final bool enableTooltips;
+  final bool flexibleSearch;
 }
 
 class LoadAccountSuccess implements StopLoading {
@@ -831,6 +835,7 @@ void createEntityByType({
               purchaseOrder: InvoiceEntity(
                 state: state,
                 entityType: EntityType.purchaseOrder,
+                vendor: vendor,
               ),
             ));
             break;
@@ -1046,7 +1051,6 @@ void createEntity({
               completer: completer,
             ));
             break;
-
           case EntityType.recurringExpense:
             store.dispatch(EditRecurringExpense(
               recurringExpense: entity,

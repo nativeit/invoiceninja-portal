@@ -71,6 +71,7 @@ class InvoiceFields {
   static const String dueDate = 'due_date';
   static const String nextSendDate = 'next_send_date';
   static const String lastSentDate = 'last_sent_date';
+  static const String lastSentTemplate = 'last_sent_template';
   static const String terms = 'terms';
   static const String footer = 'footer';
   static const String partial = 'partial_due';
@@ -162,6 +163,7 @@ abstract class InvoiceEntity extends Object
       taxAmount: 0,
       poNumber: '',
       projectId: '',
+      expenseId: '',
       vendorId: vendor?.id ?? '',
       date: convertDateTimeToSqlDate(),
       dueDate: '',
@@ -293,6 +295,7 @@ abstract class InvoiceEntity extends Object
         ..remainingCycles = -1
         ..invoiceId = ''
         ..projectId = ''
+        ..expenseId = ''
         ..subscriptionId = ''
         ..number = ''
         ..date = convertDateTimeToSqlDate()
@@ -401,6 +404,9 @@ abstract class InvoiceEntity extends Object
 
   @BuiltValueField(wireName: 'project_id')
   String get projectId;
+
+  @BuiltValueField(wireName: 'expense_id')
+  String get expenseId;
 
   @override
   @BuiltValueField(wireName: 'vendor_id')
@@ -601,6 +607,8 @@ abstract class InvoiceEntity extends Object
 
   bool get hasClient => '${clientId ?? ''}'.isNotEmpty;
 
+  bool get hasVendor => '${vendorId ?? ''}'.isNotEmpty;
+
   bool get hasInvoice => '${invoiceId ?? ''}'.isNotEmpty;
 
   double get netAmount => amount - taxAmount;
@@ -688,6 +696,7 @@ abstract class InvoiceEntity extends Object
     String sortField,
     bool sortAscending,
     BuiltMap<String, ClientEntity> clientMap,
+    BuiltMap<String, VendorEntity> vendorMap,
     BuiltMap<String, UserEntity> userMap,
     String recurringPrefix = '',
   }) {
@@ -696,6 +705,8 @@ abstract class InvoiceEntity extends Object
     final InvoiceEntity invoiceB = sortAscending ? invoice : this;
     final clientA = clientMap[invoiceA.clientId] ?? ClientEntity();
     final clientB = clientMap[invoiceB.clientId] ?? ClientEntity();
+    final vendorA = vendorMap[invoiceA.vendorId] ?? VendorEntity();
+    final vendorB = vendorMap[invoiceB.vendorId] ?? VendorEntity();
     switch (sortField) {
       case InvoiceFields.number:
         var invoiceANumber =
@@ -857,6 +868,10 @@ abstract class InvoiceEntity extends Object
       case InvoiceFields.partialDueDate:
         response = invoiceA.partialDueDate.compareTo(invoiceB.partialDueDate);
         break;
+      case InvoiceFields.vendor:
+        response =
+            vendorA.name.toLowerCase().compareTo(vendorB.name.toLowerCase());
+        break;
       default:
         print('## ERROR: sort by invoice.$sortField is not implemented');
         break;
@@ -959,6 +974,13 @@ abstract class InvoiceEntity extends Object
         if (isRecurringInvoice) {
           if ([
             kRecurringInvoiceStatusDraft,
+            kRecurringInvoiceStatusPending,
+          ].contains(statusId)) {
+            actions.add(EntityAction.sendNow);
+          }
+
+          if ([
+            kRecurringInvoiceStatusDraft,
             kRecurringInvoiceStatusPaused,
             kRecurringInvoiceStatusCompleted,
           ].contains(statusId)) {
@@ -969,13 +991,13 @@ abstract class InvoiceEntity extends Object
           ].contains(statusId)) {
             actions.add(EntityAction.stop);
           }
-        }
-
-        if (!isCancelledOrReversed) {
-          if (multiselect) {
-            actions.add(EntityAction.bulkSendEmail);
-          } else {
-            actions.add(EntityAction.sendEmail);
+        } else {
+          if (!isCancelledOrReversed) {
+            if (multiselect) {
+              actions.add(EntityAction.bulkSendEmail);
+            } else {
+              actions.add(EntityAction.sendEmail);
+            }
           }
         }
       }
@@ -995,6 +1017,19 @@ abstract class InvoiceEntity extends Object
       if (userCompany.canEditEntity(this) && !isCancelledOrReversed) {
         if (!isSent && !isRecurring) {
           actions.add(EntityAction.markSent);
+        }
+
+        if (isPurchaseOrder) {
+          if (expenseId.isEmpty) {
+            if (userCompany.canCreate(EntityType.expense)) {
+              actions.add(EntityAction.convertToExpense);
+            }
+          } else {
+            actions.add(EntityAction.viewExpense);
+          }
+          if (statusId == kPurchaseOrderStatusAccepted) {
+            actions.add(EntityAction.addToInventory);
+          }
         }
 
         if (userCompany.canCreate(EntityType.payment)) {
@@ -1017,6 +1052,10 @@ abstract class InvoiceEntity extends Object
             actions.add(EntityAction.convertToInvoice);
           } else {
             actions.add(EntityAction.viewInvoice);
+          }
+        } else if (isPurchaseOrder) {
+          if (!isCancelled) {
+            //actions.add(EntityAction.accept);
           }
         }
       }
@@ -1058,6 +1097,12 @@ abstract class InvoiceEntity extends Object
         countOtherTypes++;
         if (isRecurringInvoice) {
           actions.add(EntityAction.cloneToRecurring);
+        }
+      }
+      if (userCompany.canCreate(EntityType.purchaseOrder)) {
+        countOtherTypes++;
+        if (isPurchaseOrder) {
+          actions.add(EntityAction.cloneToPurchaseOrder);
         }
       }
       if (countOtherTypes == 2) {
@@ -1160,11 +1205,13 @@ abstract class InvoiceEntity extends Object
 
   bool get hasExchangeRate => exchangeRate != 1 && exchangeRate != 0;
 
-  EmailTemplate get emailTemplate => isQuote
-      ? EmailTemplate.quote
-      : isCredit
-          ? EmailTemplate.credit
-          : EmailTemplate.invoice;
+  EmailTemplate get emailTemplate => isPurchaseOrder
+      ? EmailTemplate.purchase_order
+      : isQuote
+          ? EmailTemplate.quote
+          : isCredit
+              ? EmailTemplate.credit
+              : EmailTemplate.invoice;
 
   double get requestedAmount => partial > 0 ? partial : amount;
 
@@ -1195,9 +1242,12 @@ abstract class InvoiceEntity extends Object
 
   bool get isReversed => isInvoice && statusId == kInvoiceStatusReversed;
 
-  bool get isCancelled => isInvoice && statusId == kInvoiceStatusCancelled;
+  bool get isCancelled =>
+      (isInvoice && statusId == kInvoiceStatusCancelled) ||
+      (isPurchaseOrder && statusId == kPurchaseOrderStatusCancelled);
 
-  bool get isCancelledOrReversed => isInvoice && (isCancelled || isReversed);
+  bool get isCancelledOrReversed =>
+      (isInvoice || isPurchaseOrder) && (isCancelled || isReversed);
 
   bool get isUpcoming => isActive && !isPaid && !isPastDue && isSent;
 
@@ -1383,6 +1433,7 @@ abstract class InvoiceEntity extends Object
     ..activities.replace(BuiltList<ActivityEntity>())
     ..paidToDate = 0
     ..projectId = ''
+    ..expenseId = ''
     ..vendorId = ''
     ..autoBillEnabled = false
     ..subscriptionId = '';

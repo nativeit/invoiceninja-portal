@@ -2,6 +2,7 @@
 import 'dart:async';
 
 // Flutter imports:
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 // Package imports:
@@ -9,6 +10,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:invoiceninja_flutter/data/models/models.dart';
 import 'package:redux/redux.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 // Project imports:
 import 'package:invoiceninja_flutter/constants.dart';
@@ -60,6 +62,8 @@ class LoginVM {
     @required this.onGoogleSignUpPressed,
     @required this.onMicrosoftLoginPressed,
     @required this.onMicrosoftSignUpPressed,
+    @required this.onAppleLoginPressed,
+    @required this.onAppleSignUpPressed,
     @required this.onTokenLoginPressed,
   });
 
@@ -109,6 +113,11 @@ class LoginVM {
       String oneTimePassword}) onMicrosoftLoginPressed;
   final Function(BuildContext, Completer<Null> completer, String url)
       onMicrosoftSignUpPressed;
+
+  final Function(BuildContext, Completer<Null> completer,
+      {String url, String secret, String oneTimePassword}) onAppleLoginPressed;
+  final Function(BuildContext, Completer<Null> completer, String url)
+      onAppleSignUpPressed;
 
   static LoginVM fromStore(Store<AppState> store) {
     void _handleLogin({BuildContext context, bool isSignUp = false}) {
@@ -264,6 +273,77 @@ class LoginVM {
         } catch (error) {
           completer.completeError(error);
           print('## onMicrosoftSignUpPressed: $error');
+        }
+      },
+      onAppleLoginPressed: (
+        BuildContext context,
+        Completer<Null> completer, {
+        @required String url,
+        @required String secret,
+        @required String oneTimePassword,
+      }) async {
+        try {
+          final credentials = await SignInWithApple.getAppleIDCredential(
+            scopes: [
+              AppleIDAuthorizationScopes.email,
+              AppleIDAuthorizationScopes.fullName,
+            ],
+            webAuthenticationOptions: WebAuthenticationOptions(
+              clientId: 'com.invoiceninja.client',
+              redirectUri: kIsWeb
+                  ? Uri.parse(WebUtils.browserUrl)
+                  : Uri.parse('https://invoicing.co/auth/apple'),
+            ),
+          );
+
+          store.dispatch(OAuthLoginRequest(
+            completer: completer,
+            url: _formatApiUrl(url),
+            secret: secret.trim(),
+            platform: getPlatform(context),
+            provider: UserEntity.OAUTH_PROVIDER_APPLE,
+            oneTimePassword: oneTimePassword,
+            email: credentials.email,
+            authCode: credentials.authorizationCode,
+            idToken: credentials.identityToken,
+          ));
+          completer.future.then((_) => _handleLogin(context: context));
+        } catch (error) {
+          completer.completeError(error);
+          print('## onAppleLoginPressed: $error');
+        }
+      },
+      onAppleSignUpPressed:
+          (BuildContext context, Completer<Null> completer, String url) async {
+        try {
+          final credentials = await SignInWithApple.getAppleIDCredential(
+            scopes: [
+              AppleIDAuthorizationScopes.email,
+              AppleIDAuthorizationScopes.fullName,
+            ],
+            webAuthenticationOptions: WebAuthenticationOptions(
+              clientId: 'com.invoiceninja.client',
+              redirectUri: kIsWeb
+                  ? Uri.parse(WebUtils.apiUrl)
+                  : Uri.parse('https://invoicing.co/auth/apple'),
+            ),
+          );
+
+          store.dispatch(OAuthSignUpRequest(
+            url: url,
+            completer: completer,
+            provider: UserEntity.OAUTH_PROVIDER_APPLE,
+            firstName: credentials.givenName,
+            lastName: credentials.familyName,
+            email: credentials.email,
+            authCode: credentials.authorizationCode,
+            idToken: credentials.identityToken,
+          ));
+          completer.future
+              .then((_) => _handleLogin(context: context, isSignUp: true));
+        } catch (error) {
+          completer.completeError(error);
+          print('## onAppleSignUpPressed: $error');
         }
       },
       onSignUpPressed: (

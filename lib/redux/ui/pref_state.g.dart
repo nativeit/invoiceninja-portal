@@ -152,6 +152,9 @@ class _$PrefStateSerializer implements StructuredSerializer<PrefState> {
       'enableTouchEvents',
       serializers.serialize(object.enableTouchEvents,
           specifiedType: const FullType(bool)),
+      'enableFlexibleSearch',
+      serializers.serialize(object.enableFlexibleSearch,
+          specifiedType: const FullType(bool)),
       'isHistoryVisible',
       serializers.serialize(object.isHistoryVisible,
           specifiedType: const FullType(bool)),
@@ -193,6 +196,9 @@ class _$PrefStateSerializer implements StructuredSerializer<PrefState> {
           specifiedType: const FullType(bool)),
       'hideGatewayWarning',
       serializers.serialize(object.hideGatewayWarning,
+          specifiedType: const FullType(bool)),
+      'hideReviewApp',
+      serializers.serialize(object.hideReviewApp,
           specifiedType: const FullType(bool)),
       'editAfterSaving',
       serializers.serialize(object.editAfterSaving,
@@ -279,6 +285,10 @@ class _$PrefStateSerializer implements StructuredSerializer<PrefState> {
           result.enableTouchEvents = serializers.deserialize(value,
               specifiedType: const FullType(bool)) as bool;
           break;
+        case 'enableFlexibleSearch':
+          result.enableFlexibleSearch = serializers.deserialize(value,
+              specifiedType: const FullType(bool)) as bool;
+          break;
         case 'isHistoryVisible':
           result.isHistoryVisible = serializers.deserialize(value,
               specifiedType: const FullType(bool)) as bool;
@@ -333,6 +343,10 @@ class _$PrefStateSerializer implements StructuredSerializer<PrefState> {
           break;
         case 'hideGatewayWarning':
           result.hideGatewayWarning = serializers.deserialize(value,
+              specifiedType: const FullType(bool)) as bool;
+          break;
+        case 'hideReviewApp':
+          result.hideReviewApp = serializers.deserialize(value,
               specifiedType: const FullType(bool)) as bool;
           break;
         case 'editAfterSaving':
@@ -612,6 +626,8 @@ class _$PrefState extends PrefState {
   @override
   final bool enableTouchEvents;
   @override
+  final bool enableFlexibleSearch;
+  @override
   final bool isHistoryVisible;
   @override
   final bool enableDarkMode;
@@ -640,6 +656,8 @@ class _$PrefState extends PrefState {
   @override
   final bool hideGatewayWarning;
   @override
+  final bool hideReviewApp;
+  @override
   final bool editAfterSaving;
   @override
   final double textScaleFactor;
@@ -664,6 +682,7 @@ class _$PrefState extends PrefState {
       this.showKanban,
       this.showPdfPreview,
       this.enableTouchEvents,
+      this.enableFlexibleSearch,
       this.isHistoryVisible,
       this.enableDarkMode,
       this.isFilterVisible,
@@ -678,6 +697,7 @@ class _$PrefState extends PrefState {
       this.colorTheme,
       this.hideDesktopWarning,
       this.hideGatewayWarning,
+      this.hideReviewApp,
       this.editAfterSaving,
       this.textScaleFactor,
       this.sortFields,
@@ -707,6 +727,8 @@ class _$PrefState extends PrefState {
     BuiltValueNullFieldError.checkNotNull(
         enableTouchEvents, 'PrefState', 'enableTouchEvents');
     BuiltValueNullFieldError.checkNotNull(
+        enableFlexibleSearch, 'PrefState', 'enableFlexibleSearch');
+    BuiltValueNullFieldError.checkNotNull(
         isHistoryVisible, 'PrefState', 'isHistoryVisible');
     BuiltValueNullFieldError.checkNotNull(
         enableDarkMode, 'PrefState', 'enableDarkMode');
@@ -733,6 +755,8 @@ class _$PrefState extends PrefState {
         hideDesktopWarning, 'PrefState', 'hideDesktopWarning');
     BuiltValueNullFieldError.checkNotNull(
         hideGatewayWarning, 'PrefState', 'hideGatewayWarning');
+    BuiltValueNullFieldError.checkNotNull(
+        hideReviewApp, 'PrefState', 'hideReviewApp');
     BuiltValueNullFieldError.checkNotNull(
         editAfterSaving, 'PrefState', 'editAfterSaving');
     BuiltValueNullFieldError.checkNotNull(
@@ -766,6 +790,7 @@ class _$PrefState extends PrefState {
         showKanban == other.showKanban &&
         showPdfPreview == other.showPdfPreview &&
         enableTouchEvents == other.enableTouchEvents &&
+        enableFlexibleSearch == other.enableFlexibleSearch &&
         isHistoryVisible == other.isHistoryVisible &&
         enableDarkMode == other.enableDarkMode &&
         isFilterVisible == other.isFilterVisible &&
@@ -780,6 +805,7 @@ class _$PrefState extends PrefState {
         colorTheme == other.colorTheme &&
         hideDesktopWarning == other.hideDesktopWarning &&
         hideGatewayWarning == other.hideGatewayWarning &&
+        hideReviewApp == other.hideReviewApp &&
         editAfterSaving == other.editAfterSaving &&
         textScaleFactor == other.textScaleFactor &&
         sortFields == other.sortFields &&
@@ -807,22 +833,22 @@ class _$PrefState extends PrefState {
                                                                 $jc(
                                                                     $jc(
                                                                         $jc(
-                                                                            $jc($jc($jc($jc($jc($jc($jc($jc($jc($jc($jc($jc(0, appLayout.hashCode), moduleLayout.hashCode), menuSidebarMode.hashCode), historySidebarMode.hashCode), useSidebarEditor.hashCode), useSidebarViewer.hashCode), customColors.hashCode), isPreviewVisible.hashCode), isMenuVisible.hashCode), showKanban.hashCode), showPdfPreview.hashCode),
-                                                                                enableTouchEvents.hashCode),
-                                                                            isHistoryVisible.hashCode),
-                                                                        enableDarkMode.hashCode),
-                                                                    isFilterVisible.hashCode),
-                                                                persistData.hashCode),
-                                                            persistUI.hashCode),
-                                                        longPressSelectionIsDefault.hashCode),
-                                                    requireAuthentication.hashCode),
-                                                tapSelectedToEdit.hashCode),
-                                            enableJSPDF.hashCode),
-                                        rowsPerPage.hashCode),
-                                    enableTooltips.hashCode),
-                                colorTheme.hashCode),
-                            hideDesktopWarning.hashCode),
-                        hideGatewayWarning.hashCode),
+                                                                            $jc($jc($jc($jc($jc($jc($jc($jc($jc($jc($jc($jc($jc($jc(0, appLayout.hashCode), moduleLayout.hashCode), menuSidebarMode.hashCode), historySidebarMode.hashCode), useSidebarEditor.hashCode), useSidebarViewer.hashCode), customColors.hashCode), isPreviewVisible.hashCode), isMenuVisible.hashCode), showKanban.hashCode), showPdfPreview.hashCode), enableTouchEvents.hashCode), enableFlexibleSearch.hashCode),
+                                                                                isHistoryVisible.hashCode),
+                                                                            enableDarkMode.hashCode),
+                                                                        isFilterVisible.hashCode),
+                                                                    persistData.hashCode),
+                                                                persistUI.hashCode),
+                                                            longPressSelectionIsDefault.hashCode),
+                                                        requireAuthentication.hashCode),
+                                                    tapSelectedToEdit.hashCode),
+                                                enableJSPDF.hashCode),
+                                            rowsPerPage.hashCode),
+                                        enableTooltips.hashCode),
+                                    colorTheme.hashCode),
+                                hideDesktopWarning.hashCode),
+                            hideGatewayWarning.hashCode),
+                        hideReviewApp.hashCode),
                     editAfterSaving.hashCode),
                 textScaleFactor.hashCode),
             sortFields.hashCode),
@@ -844,6 +870,7 @@ class _$PrefState extends PrefState {
           ..add('showKanban', showKanban)
           ..add('showPdfPreview', showPdfPreview)
           ..add('enableTouchEvents', enableTouchEvents)
+          ..add('enableFlexibleSearch', enableFlexibleSearch)
           ..add('isHistoryVisible', isHistoryVisible)
           ..add('enableDarkMode', enableDarkMode)
           ..add('isFilterVisible', isFilterVisible)
@@ -858,6 +885,7 @@ class _$PrefState extends PrefState {
           ..add('colorTheme', colorTheme)
           ..add('hideDesktopWarning', hideDesktopWarning)
           ..add('hideGatewayWarning', hideGatewayWarning)
+          ..add('hideReviewApp', hideReviewApp)
           ..add('editAfterSaving', editAfterSaving)
           ..add('textScaleFactor', textScaleFactor)
           ..add('sortFields', sortFields)
@@ -930,6 +958,11 @@ class PrefStateBuilder implements Builder<PrefState, PrefStateBuilder> {
   set enableTouchEvents(bool enableTouchEvents) =>
       _$this._enableTouchEvents = enableTouchEvents;
 
+  bool _enableFlexibleSearch;
+  bool get enableFlexibleSearch => _$this._enableFlexibleSearch;
+  set enableFlexibleSearch(bool enableFlexibleSearch) =>
+      _$this._enableFlexibleSearch = enableFlexibleSearch;
+
   bool _isHistoryVisible;
   bool get isHistoryVisible => _$this._isHistoryVisible;
   set isHistoryVisible(bool isHistoryVisible) =>
@@ -995,6 +1028,11 @@ class PrefStateBuilder implements Builder<PrefState, PrefStateBuilder> {
   set hideGatewayWarning(bool hideGatewayWarning) =>
       _$this._hideGatewayWarning = hideGatewayWarning;
 
+  bool _hideReviewApp;
+  bool get hideReviewApp => _$this._hideReviewApp;
+  set hideReviewApp(bool hideReviewApp) =>
+      _$this._hideReviewApp = hideReviewApp;
+
   bool _editAfterSaving;
   bool get editAfterSaving => _$this._editAfterSaving;
   set editAfterSaving(bool editAfterSaving) =>
@@ -1036,6 +1074,7 @@ class PrefStateBuilder implements Builder<PrefState, PrefStateBuilder> {
       _showKanban = $v.showKanban;
       _showPdfPreview = $v.showPdfPreview;
       _enableTouchEvents = $v.enableTouchEvents;
+      _enableFlexibleSearch = $v.enableFlexibleSearch;
       _isHistoryVisible = $v.isHistoryVisible;
       _enableDarkMode = $v.enableDarkMode;
       _isFilterVisible = $v.isFilterVisible;
@@ -1050,6 +1089,7 @@ class PrefStateBuilder implements Builder<PrefState, PrefStateBuilder> {
       _colorTheme = $v.colorTheme;
       _hideDesktopWarning = $v.hideDesktopWarning;
       _hideGatewayWarning = $v.hideGatewayWarning;
+      _hideReviewApp = $v.hideReviewApp;
       _editAfterSaving = $v.editAfterSaving;
       _textScaleFactor = $v.textScaleFactor;
       _sortFields = $v.sortFields.toBuilder();
@@ -1096,6 +1136,7 @@ class PrefStateBuilder implements Builder<PrefState, PrefStateBuilder> {
               showPdfPreview:
                   BuiltValueNullFieldError.checkNotNull(showPdfPreview, 'PrefState', 'showPdfPreview'),
               enableTouchEvents: BuiltValueNullFieldError.checkNotNull(enableTouchEvents, 'PrefState', 'enableTouchEvents'),
+              enableFlexibleSearch: BuiltValueNullFieldError.checkNotNull(enableFlexibleSearch, 'PrefState', 'enableFlexibleSearch'),
               isHistoryVisible: BuiltValueNullFieldError.checkNotNull(isHistoryVisible, 'PrefState', 'isHistoryVisible'),
               enableDarkMode: BuiltValueNullFieldError.checkNotNull(enableDarkMode, 'PrefState', 'enableDarkMode'),
               isFilterVisible: BuiltValueNullFieldError.checkNotNull(isFilterVisible, 'PrefState', 'isFilterVisible'),
@@ -1110,6 +1151,7 @@ class PrefStateBuilder implements Builder<PrefState, PrefStateBuilder> {
               colorTheme: BuiltValueNullFieldError.checkNotNull(colorTheme, 'PrefState', 'colorTheme'),
               hideDesktopWarning: BuiltValueNullFieldError.checkNotNull(hideDesktopWarning, 'PrefState', 'hideDesktopWarning'),
               hideGatewayWarning: BuiltValueNullFieldError.checkNotNull(hideGatewayWarning, 'PrefState', 'hideGatewayWarning'),
+              hideReviewApp: BuiltValueNullFieldError.checkNotNull(hideReviewApp, 'PrefState', 'hideReviewApp'),
               editAfterSaving: BuiltValueNullFieldError.checkNotNull(editAfterSaving, 'PrefState', 'editAfterSaving'),
               textScaleFactor: BuiltValueNullFieldError.checkNotNull(textScaleFactor, 'PrefState', 'textScaleFactor'),
               sortFields: sortFields.build(),

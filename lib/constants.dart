@@ -4,7 +4,7 @@ class Constants {
 }
 
 // TODO remove version once #46609 is fixed
-const String kClientVersion = '5.0.85';
+const String kClientVersion = '5.0.88';
 const String kMinServerVersion = '5.0.4';
 
 const String kAppName = 'Invoice Ninja';
@@ -25,16 +25,20 @@ const String kSourceCodeFrontend =
     'https://github.com/invoiceninja/admin-portal';
 const String kSourceCodeFrontendSDK = 'https://pub.dev/packages/invoiceninja';
 
+const String kPlayStoreAppId = 'com.invoiceninja.app';
+const String kAppStoreAppId = 'id1503970375';
+
+const String kMicrosoftAppStoreId = '9n3f2bbcfdr6';
 const String kAppleStoreUrl =
-    'https://apps.apple.com/us/app/invoice-ninja-v5/id1503970375';
+    'https://apps.apple.com/us/app/invoice-ninja-v5/$kAppStoreAppId';
 const String kGoogleStoreUrl =
-    'https://play.google.com/store/apps/details?id=com.invoiceninja.app';
+    'https://play.google.com/store/apps/details?id=$kPlayStoreAppId';
 const String kGoogleFDroidUrl =
     'https://f-droid.org/packages/com.invoiceninja.app';
 const String kMacOSUrl = 'https://apps.apple.com/app/id1503970375';
 const String kLinuxUrl = 'https://snapcraft.io/invoiceninja';
 const String kWindowsUrl =
-    'https://www.microsoft.com/en-us/p/invoice-ninja/9n3f2bbcfdr6';
+    'https://www.microsoft.com/en-us/p/invoice-ninja/$kMicrosoftAppStoreId';
 
 const String kSlackUrl = 'http://slack.invoiceninja.com';
 const String kGitHubUrl = 'https://github.com/invoiceninja';
@@ -171,6 +175,7 @@ const String kCurrencyEuro = '3';
 
 const String kCountryUnitedStates = '840';
 const String kCountryCanada = '124';
+const String kCountrySwitzerland = '756';
 
 const String kInvoiceStatusViewed = '-3';
 const String kInvoiceStatusUnpaid = '-2';
@@ -252,12 +257,14 @@ const kCreditStatuses = {
 const String kPurchaseOrderStatusDraft = '1';
 const String kPurchaseOrderStatusSent = '2';
 const String kPurchaseOrderStatusAccepted = '3';
-const String kPurchaseOrderStatusCancelled = '4';
+const String kPurchaseOrderStatusReceived = '4';
+const String kPurchaseOrderStatusCancelled = '5';
 
 const kPurchaseOrderStatuses = {
   kPurchaseOrderStatusDraft: 'draft',
   kPurchaseOrderStatusSent: 'sent',
   kPurchaseOrderStatusAccepted: 'accepted',
+  kPurchaseOrderStatusReceived: 'received',
   kPurchaseOrderStatusCancelled: 'cancelled',
 };
 
@@ -508,6 +515,7 @@ const String kReportInvoiceItem = 'invoice_item';
 const String kReportQuoteItem = 'quote_item';
 const String kReportRecurringExpense = 'recurring_expense';
 const String kReportRecurringInvoice = 'recurring_invoice';
+const String kReportPurchaseOrder = 'purchase_order';
 
 const String kPdfFieldsClientDetails = 'client_details';
 const String kPdfFieldsCompanyDetails = 'company_details';
@@ -516,6 +524,8 @@ const String kPdfFieldsInvoiceDetails = 'invoice_details';
 const String kPdfFieldsQuoteDetails = 'quote_details';
 const String kPdfFieldsCreditDetails = 'credit_details';
 const String kPdfFieldsProductColumns = 'product_columns';
+const String kPdfFieldsVendorDetails = 'vendor_details';
+const String kPdfFieldsPurchaseOrderDetails = 'purchase_order_details';
 const String kPdfFieldsTaskColumns = 'task_columns';
 const String kPdfFieldsTotalFields = 'total_columns';
 

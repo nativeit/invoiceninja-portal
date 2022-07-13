@@ -454,6 +454,8 @@ class SettingsSearch extends StatelessWidget {
         [
           'long_press_multiselect',
           'biometric_authentication',
+          'enable_flexible_search',
+          'enable_tooltips',
           'show_pdf_preview',
           'refresh_data',
         ],
@@ -525,7 +527,8 @@ class SettingsSearch extends StatelessWidget {
           'portal_mode',
           'subdomain',
           'domain',
-          'document_upload',
+          'client_document_upload',
+          'vendor_document_upload',
         ],
         [
           'client_registration',
